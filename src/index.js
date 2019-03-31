@@ -7,7 +7,7 @@ import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-d
 import AppLayout from "./layout/AppLayout";
 // import Feed from "./pages/Feed";
 // import PostForm from "./pages/PostForm"
-import { Feed, PostForm, NotFound } from "./pages";
+import { Feed, Profile, PostForm, NotFound } from "./pages";
 
 import "./styles.css";
 
@@ -17,6 +17,7 @@ function App() {
       <Router>
         <Switch>
           <Route path="/" exact component={Feed} />
+          <Route path="/profile" exact component={Profile} />
           <Route path="/new" exact component={PostForm} />
           <Redirect from="/feed" to="/" />
           <Route component={NotFound} />
