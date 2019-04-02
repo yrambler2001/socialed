@@ -1,31 +1,24 @@
 import React, { Component } from "react";
 import Feed from "./Feed";
+import feedCollection from "../../collections/feed";
 
 class FeedContainer extends Component {
   state = {
     posts: []
   };
 
-
   async componentDidMount() {
-    const posts = await this.fetchPosts();
+    const posts = await this.getPosts();
     this.setState({ posts });
   }
 
-
-  async fetchPosts() {
-    const response = await fetch("https://jsonplaceholder.typicode.com/posts");
-    const posts = await response.json();
-    const promises = posts.map(async (post) => {
-      const { userId } = post;
-      const response = await fetch(`https://jsonplaceholder.typicode.com/users/${userId}`);
-      const user = await response.json();
-      post.author = user.name;
-      return post
-    });
-        
-    const postsWithAuthors = await Promise.all(promises)
-    return postsWithAuthors;
+  async getPosts() {
+    try {
+      const posts = await new Promise((resolve, reject) => {
+        (feedCollection.items.length == 0) ? reject("empty feed") : resolve(feedCollection.items)
+      });
+      return posts;
+    } catch (e) { console.log(e);return [];/*[{title: "Lorem",author:"ipsum",body:"dolor sit amet"}];*/ }
   }
 
   redirect = () => {
@@ -38,15 +31,4 @@ class FeedContainer extends Component {
   }
 }
 
-// export default class FeedContainerContainer extends Component {
-//   state = { kill: false };
-//   componentDidMount() {
-//     setTimeout(() => {
-//       this.setState({ kill: true });
-//     }, 5000);
-//   }
-//   render() {
-//     return <div>{this.state.kill ? <h2>KILLED</h2> : <FeedContainer />}</div>;
-//   }
-// }
 export default FeedContainer;

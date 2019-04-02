@@ -8,6 +8,9 @@ const Feed = ({ posts, text, redirect }) => {
     <div>
       <h1>{text}</h1>
       <Link to="/new">Post form</Link>
+      <br></br>
+      <Link to="/profile">Profile</Link>
+      <br></br>
       <Button onClick={redirect}>Post form button</Button>
       {posts.map(post => (
         <Post {...post} key={post.id} />
