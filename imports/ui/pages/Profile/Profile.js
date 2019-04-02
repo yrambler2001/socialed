@@ -3,17 +3,15 @@ import { Link } from 'react-router-dom';
 import { Button, CardImg, CardBody, CardTitle, CardSubtitle, CardText, Card } from 'reactstrap';
 
 
-const Profile = props => (
+const Profile = ({ user }) => (
   <div>
     <Card>
       <CardBody>
-        <CardTitle>Name Surname</CardTitle>
+        <CardTitle>{user.profile.fullName}</CardTitle>
         <CardText>
-          Achievements: Good person
-          <br />
-          User
+          {user.emails[0].address} {user.emails[0].verified ? '(verified)' : '(not verified)'}
         </CardText>
-        <Button>Edit</Button>
+        {/* <Button>Edit</Button> */}
       </CardBody>
     </Card>
   </div>

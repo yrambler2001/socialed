@@ -31,7 +31,7 @@ export default class NavBar extends React.Component {
     return (
       <Navbar color="light" light expand="md">
         <Container>
-        <NavbarBrand href="/">Socialed</NavbarBrand>
+        <NavbarBrand href="/"><img src="/socialed-logo.png" height="50"/></NavbarBrand>
           {/*
             <NavbarToggler onClick={this.toggle} />
             <Collapse isOpen={this.state.isOpen} navbar>
