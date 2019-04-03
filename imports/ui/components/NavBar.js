@@ -12,11 +12,11 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem } from 'reactstrap';
+import { withRouter } from 'react-router-dom';
 
-export default class NavBar extends React.Component {
+export default withRouter(class NavBar extends React.Component {
   constructor(props) {
     super(props);
-
     this.toggle = this.toggle.bind(this);
     this.state = {
       isOpen: false
@@ -31,7 +31,7 @@ export default class NavBar extends React.Component {
     return (
       <Navbar color="light" light expand="md">
         <Container>
-        <NavbarBrand href="/"><img src="/socialed-logo.png" height="50"/></NavbarBrand>
+          <NavbarBrand onClick={()=>this.props.history.push('/')} ><img src="/socialed-logo.png" height="50" /></NavbarBrand>
           {/*
             <NavbarToggler onClick={this.toggle} />
             <Collapse isOpen={this.state.isOpen} navbar>
@@ -66,4 +66,4 @@ export default class NavBar extends React.Component {
       </Navbar>
     );
   }
-}
+})
