@@ -17,6 +17,8 @@ import { withRouter } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { toast } from 'react-toastify';
+import withMousePosition from '/imports/ui/hocs/withMousePosition';
+import { compose } from 'recompose';
 
 
 class NavBar extends React.Component {
@@ -33,6 +35,7 @@ class NavBar extends React.Component {
     });
   }
   render() {
+    console.log(this.props);
     return (
       <Navbar color="light" light expand="md">
         <Container>
@@ -65,10 +68,14 @@ class NavBar extends React.Component {
   }
 }
 
-export default withRouter(withTracker(props => {
-  return {
-    user: Meteor.user(),
-    loading: Meteor.loggingIn(),
-    isLoggedIn: !Meteor.loggingIn() && Meteor.userId()
-  };
-})(NavBar));
+
+export default compose(
+  withRouter,
+  withTracker(() => {
+    return {
+      user: Meteor.user(),
+      loading: Meteor.loggingIn(),
+      isLoggedIn: !Meteor.loggingIn() && Meteor.userId()
+    };
+  })
+)(NavBar);
