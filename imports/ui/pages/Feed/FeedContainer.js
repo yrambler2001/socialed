@@ -6,26 +6,37 @@ import { Redirect } from 'react-router-dom';
 
 class FeedContainer extends Component {
   state = {
-    _posts: [],
+    posts: [],
     postsLoaded: false
   };
 
   async getPosts() {
+    console.log('Getting posts', this.props.isLoggedIn);
     try {
-      const _posts = await new Promise((resolve, reject) => {
+      const posts = await new Promise((resolve, reject) => {
         (feedCollection.items.length == 0) ? reject("empty feed") : resolve(feedCollection.items)
       });
-      return _posts;
+      return posts;
     } catch (e) { console.log(e); return [];/*[{title: "Lorem",author:"ipsum",body:"dolor sit amet"}];*/ }
   }
 
-  async updatePosts() {
-    const _posts = await this.getPosts();
-    this.setState({ _posts });
+  async fetchAndSetPosts() {
+    this.fetchedPostsOnce = true;
+    const posts = await this.getPosts();
+    this.setState({ posts });
   }
 
-  //posts are loaded only when user is logged in and only one time.
-  get posts() { if (!this.state.postsLoaded) { this.state.postsLoaded = true; this.updatePosts(); }; return this.state._posts; }
+  componentDidMount() {
+    if (this.props.isLoggedIn) {
+      this.fetchAndSetPosts();
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.isLoggedIn && !this.fetchedPostsOnce) {
+      this.fetchAndSetPosts();
+    }
+  }
 
   redirect = () => {
     console.log(this.props);
@@ -41,8 +52,15 @@ class FeedContainer extends Component {
         <Redirect to="/login" />
       )
     }
-    const { text } = this.state;
-    return <Feed {...this.props} posts={this.posts} text={text} redirect={this.redirect} />;
+    const { text, posts } = this.state;
+    return (
+      <Feed
+        {...this.props}
+        posts={posts}
+        text={text}
+        redirect={this.redirect}
+      />
+    );
   }
 }
 
