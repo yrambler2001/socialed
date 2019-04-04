@@ -11,15 +11,20 @@ import {
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
-  DropdownItem } from 'reactstrap';
+  DropdownItem
+} from 'reactstrap';
+import { withRouter } from 'react-router-dom';
+import { Meteor } from 'meteor/meteor';
+import { withTracker } from 'meteor/react-meteor-data';
+import { toast } from 'react-toastify';
 
-export default class NavBar extends React.Component {
+
+class NavBar extends React.Component {
   constructor(props) {
     super(props);
-
     this.toggle = this.toggle.bind(this);
     this.state = {
-      isOpen: false
+      isOpen: false,
     };
   }
   toggle() {
@@ -31,39 +36,39 @@ export default class NavBar extends React.Component {
     return (
       <Navbar color="light" light expand="md">
         <Container>
-        <NavbarBrand href="/"><img src="/socialed-logo.png" height="50"/></NavbarBrand>
-          {/*
-            <NavbarToggler onClick={this.toggle} />
-            <Collapse isOpen={this.state.isOpen} navbar>
-              <Nav className="ml-auto" navbar>
-                <NavItem>
-                  <NavLink href="/components/">Components</NavLink>
-                </NavItem>
-                <NavItem>
-                  <NavLink href="https://github.com/reactstrap/reactstrap">GitHub</NavLink>
-                </NavItem>
-                <UncontrolledDropdown nav inNavbar>
-                  <DropdownToggle nav caret>
-                    Options
-                  </DropdownToggle>
-                  <DropdownMenu right>
-                    <DropdownItem>
-                      Option 1
+          <NavbarBrand onClick={() => this.props.history.push('/')} ><img src="/socialed-logo.png" height="50" /></NavbarBrand>
+          <NavbarToggler onClick={this.toggle} />
+          <Collapse isOpen={this.state.isOpen} navbar>
+            <Nav className="ml-auto" navbar>
+              <UncontrolledDropdown nav inNavbar>
+                <DropdownToggle disabled={!this.props.isLoggedIn} nav caret>
+                  {this.props.isLoggedIn ? this.props.user.profile.fullName : 'Not logged in'}
+                </DropdownToggle>
+                <DropdownMenu right>
+                  <DropdownItem onClick={() => { this.props.history.push('/profile') }}>
+                    Profile
                     </DropdownItem>
-                    <DropdownItem>
-                      Option 2
+                  {/* <DropdownItem>
+                    TODO: Option 2
+                    </DropdownItem> */}
+                  <DropdownItem divider />
+                  <DropdownItem onClick={() => { Meteor.logout(); toast.success('Successfully logged out'); }}>
+                    Logout
                     </DropdownItem>
-                    <DropdownItem divider />
-                    <DropdownItem>
-                      Reset
-                    </DropdownItem>
-                  </DropdownMenu>
-                </UncontrolledDropdown>
-              </Nav>
-            </Collapse>
-          */}
+                </DropdownMenu>
+              </UncontrolledDropdown>
+            </Nav>
+          </Collapse>
         </Container>
       </Navbar>
     );
   }
 }
+
+export default withRouter(withTracker(props => {
+  return {
+    user: Meteor.user(),
+    loading: Meteor.loggingIn(),
+    isLoggedIn: !Meteor.loggingIn() && Meteor.userId()
+  };
+})(NavBar));
