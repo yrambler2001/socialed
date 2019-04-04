@@ -9,7 +9,7 @@ import { Meteor } from 'meteor/meteor';
 const EMAIL_VALIDATOR = Joi.string().email({ minDomainAtoms: 2 }).required();
 const PASSWORD_VALIDATOR = Joi.string().min(6).max(20).required();
 
-export default class SignUpContainer extends Component {
+class SignUpContainer extends Component {
   state = {
     email: '',
     password: '',
@@ -93,6 +93,7 @@ export default class SignUpContainer extends Component {
 
   render() {
     const { email, password, confirmPassword, fullName } = this.state;
+
     return (
       <SignUp
         onSubmit={this.onSubmit}
@@ -106,3 +107,5 @@ export default class SignUpContainer extends Component {
     );
   }
 }
+
+export default SignUpContainer;

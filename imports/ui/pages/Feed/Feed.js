@@ -3,15 +3,14 @@ import { Post } from "../../components";
 import { Link } from 'react-router-dom';
 import { Button } from 'reactstrap';
 
-const Feed = ({ posts, text, redirect }) => {
+const Feed = ({ posts, redirect }) => {
   return (
     <div>
-      <h1>{text}</h1>
-      <Link to="/new">Post form</Link>
-      <br></br>
-      <Link to="/profile">Profile</Link>
-      <br></br>
-      <Button onClick={redirect}>Post form button</Button>
+      <Button onClick={redirect}>
+        <Link to="/new">
+          New Post +
+        </Link>
+      </Button>
       {posts.map(post => (
         <Post {...post} key={post.id} />
       ))}
