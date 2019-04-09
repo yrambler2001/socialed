@@ -21,6 +21,14 @@ Meteor.methods({
     return _id;
   },
 
+  'posts.count'(){
+    if (!this.userId) {
+      throw Meteor.Error('Not authorized');
+    }
+
+    return PostsCollection.find().count();
+  },
+
   'posts.clear'(){
     if (!this.userId) {
       throw Meteor.Error('Not authorized');
@@ -37,9 +45,6 @@ Meteor.methods({
       throw Meteor.Error('Not authorized');
     }
 
-    if (!Meteor.users.findOne(this.userId).isAdmin) {
-      throw Meteor.Error('Access Denied!');
-    }
     const userIds = Meteor.users.find().map(u => u._id);
     for (let i = 0; i < number; i++) {
       PostsCollection.insert({
