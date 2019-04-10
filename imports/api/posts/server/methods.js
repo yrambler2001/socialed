@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+import faker from 'faker';
 import PostsCollection from '../collection';
 
 Meteor.methods({
@@ -18,5 +19,39 @@ Meteor.methods({
     });
 
     return _id;
+  },
+
+  'posts.count'(){
+    if (!this.userId) {
+      throw Meteor.Error('Not authorized');
+    }
+
+    return PostsCollection.find().count();
+  },
+
+  'posts.clear'(){
+    if (!this.userId) {
+      throw Meteor.Error('Not authorized');
+    }
+
+    if (!Meteor.users.findOne(this.userId).isAdmin) {
+      throw Meteor.Error('Access Denied!');
+    }
+    PostsCollection.remove({});
+  },
+
+  'posts.populate'(number=10){
+    if (!this.userId) {
+      throw Meteor.Error('Not authorized');
+    }
+
+    const userIds = Meteor.users.find().map(u => u._id);
+    for (let i = 0; i < number; i++) {
+      PostsCollection.insert({
+        body: faker.lorem.sentence(),
+        userId: faker.random.arrayElement(userIds),
+        createdAt: faker.date.recent(),
+      });
+    }
   }
 });
