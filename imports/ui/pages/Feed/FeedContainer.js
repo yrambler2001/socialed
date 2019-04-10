@@ -7,6 +7,11 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Redirect } from 'react-router-dom';
 
 const page = new ReactiveVar(1);
+const loadNextPage = new ReactiveVar(false);
+const content = new ReactiveVar([]);
+const hasMore = new ReactiveVar(true);
+
+
 class FeedContainer extends Component {
   constructor(props){
     super(props);
@@ -19,12 +24,16 @@ class FeedContainer extends Component {
   }
 
   changePage = (adder) => {
+    console.log(1)
+    hasMore.set(false)
     const { postsCount } = this.state;
     const pageCount = page.get();
     const nextPage = pageCount + adder;
     if (nextPage < 1 ) return
     if (nextPage > Math.ceil(postsCount/10)) return
+    hasMore.set(true)
     page.set(pageCount + adder);
+    loadNextPage.set(true)
   }
 
   componentDidMount(){
@@ -33,7 +42,7 @@ class FeedContainer extends Component {
         if (err) console.log(err);
         this.setState({ postsCount: res });
       });
-    }, 10000)
+    }, 1000)
 
   }
 
@@ -51,6 +60,8 @@ class FeedContainer extends Component {
     return (
       <Feed
         {...this.props}
+        hasMore={hasMore.get()}
+        posts={content.get()}
         redirect={this.redirect}
         page={page.get()}
         changePage={this.changePage}
@@ -71,11 +82,14 @@ export default withTracker(props => {
     const user = Meteor.users.findOne(p.userId);
     return { ...p, author: user }
   });
-
+  if (loadNextPage.get()){
+  content.set(content.get().concat(postsWithUsers))
+  loadNextPage.set(false)
+  }
   return {
     posts: postsWithUsers,
     user: Meteor.user(),
-    loading: Meteor.loggingIn() || handlers.some(h => !h.ready()),
+    loading: Meteor.loggingIn(),//|| handlers.some(h => !h.ready()),
     isLoggedIn: !Meteor.loggingIn() && Meteor.userId()
   };
 })(FeedContainer);
