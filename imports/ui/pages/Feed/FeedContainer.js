@@ -1,12 +1,12 @@
 import React, { Component } from "react";
 import _ from 'lodash';
-import { ReactiveVar } from 'meteor/reactive-var';
 import Feed from "./Feed";
 import PostsCollection from "/imports/api/posts/collection";
 import { withTracker } from 'meteor/react-meteor-data';
 import { Redirect } from 'react-router-dom';
+import { compose, withState } from 'recompose';
 
-const page = new ReactiveVar(1);
+const POSTS_PER_PAGE = 10;
 class FeedContainer extends Component {
   constructor(props){
     super(props);
@@ -14,27 +14,38 @@ class FeedContainer extends Component {
       postsCount: 0
     }
   }
+
   redirect = () => {
     console.log(this.props);
   }
 
   changePage = (adder) => {
     const { postsCount } = this.state;
-    const pageCount = page.get();
-    const nextPage = pageCount + adder;
+    const { page, setPage } = this.props;
+    const currentPage = page;
+    const nextPage = currentPage + adder;
     if (nextPage < 1 ) return
-    if (nextPage > Math.ceil(postsCount/10)) return
-    page.set(pageCount + adder);
+    if (nextPage > Math.ceil(postsCount / POSTS_PER_PAGE)) return
+    setPage(currentPage + adder);
   }
 
-  componentDidMount(){
-    setInterval(() => {
-      Meteor.call('posts.count', (err, res) => {
-        if (err) console.log(err);
-        this.setState({ postsCount: res });
-      });
-    }, 10000)
+  fetchPostsCount = _.debounce(() => {
+    const { selectedUsers } = this.props;
+    Meteor.call('posts.count', { selectedUsers }, (err, res) => {
+      if (err) console.log(err);
+      this.setState({ postsCount: res });
+    });
+  }, 500)
 
+  componentDidMount(){
+    this.fetchPostsCount();
+    // setInterval(this.fetchPostsCount, 10000)
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (!_.isEqual(this.props.selectedUsers, prevProps.selectedUsers)) {
+      this.fetchPostsCount();
+    }
   }
 
   render() {
@@ -52,7 +63,6 @@ class FeedContainer extends Component {
       <Feed
         {...this.props}
         redirect={this.redirect}
-        page={page.get()}
         changePage={this.changePage}
         postsCount={postsCount}
       />
@@ -60,22 +70,39 @@ class FeedContainer extends Component {
   }
 }
 
-export default withTracker(props => {
-  const posts = PostsCollection.find().fetch();
-  const pageCount = page.get();
-  const handlers = [
-    Meteor.subscribe('posts', page.get()),
-  ]
+export default compose(
+  withState('isInitialLoading', 'setIsInitialLoading', true),
+  withState('selectedUsers', 'setSelectedUsers', []),
+  withState('page', 'setPage', 1),
+  withTracker(props => {
+    const { page, selectedUsers, isInitialLoading, setIsInitialLoading } = props;
 
-  const postsWithUsers = posts.map(p => {
-    const user = Meteor.users.findOne(p.userId);
-    return { ...p, author: user }
-  });
+    const handlers = [
+      Meteor.subscribe('posts', { page, selectedUsers }),
+    ];
 
-  return {
-    posts: postsWithUsers,
-    user: Meteor.user(),
-    loading: Meteor.loggingIn() || handlers.some(h => !h.ready()),
-    isLoggedIn: !Meteor.loggingIn() && Meteor.userId()
-  };
-})(FeedContainer);
+    const posts = PostsCollection.find().fetch();
+
+    const postsWithUsers = posts.map(p => {
+      const user = Meteor.users.findOne(p.userId);
+      return { ...p, author: user }
+    });
+
+    let loading = Meteor.loggingIn() || handlers.some(h => !h.ready());
+
+    if (!isInitialLoading) {
+      loading = false;
+    } else {
+      if (!loading) {
+        setIsInitialLoading(false);
+      }
+    }
+
+    return {
+      posts: postsWithUsers,
+      user: Meteor.user(),
+      loading,
+      isLoggedIn: !Meteor.loggingIn() && Meteor.userId()
+    };
+  })
+)(FeedContainer);

@@ -2,11 +2,13 @@ import React from "react";
 import { Post } from "../../components";
 import { Link } from 'react-router-dom';
 import { Button, Card, CardHeader, CardBody } from 'reactstrap';
+import UsersFilter from "./components/UsersFilter";
 
-const Feed = ({ posts, redirect, loading, page, postsCount, changePage }) => {
+const Feed = ({ posts, redirect, loading, page, postsCount, changePage, setSelectedUsers, selectedUsers }) => {
   // if (loading) return <h1>...Loading</h1>
   return (
     <div>
+      <UsersFilter selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />
       <Button onClick={redirect}>
         <Link to="/new">
           New Post +
