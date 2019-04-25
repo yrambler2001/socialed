@@ -9,10 +9,8 @@ const Feed = ({ posts, redirect, loading, page, postsCount, changePage, setSelec
   return (
     <div>
       <UsersFilter selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />
-      <Button onClick={redirect}>
-        <Link to="/new">
+      <Button tag={Link}  to="/new" onClick={redirect}>
           New Post +
-        </Link>
       </Button>
       <Button onClick={() => changePage(-1)}>Prev Page</Button>
       <Button onClick={() => changePage(1)}>Next Page</Button>
