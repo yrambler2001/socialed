@@ -34,8 +34,14 @@ class FeedContainer extends Component {
     Meteor.call('posts.count', { selectedUsers }, (err, res) => {
       if (err) console.log(err);
       this.setState({ postsCount: res });
+
     });
   }, 500)
+
+  resetPage() {
+    const { setPage } = this.props;
+    setPage(1);
+  }
 
   componentDidMount(){
     this.fetchPostsCount();
@@ -44,6 +50,7 @@ class FeedContainer extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (!_.isEqual(this.props.selectedUsers, prevProps.selectedUsers)) {
+      this.resetPage();      
       this.fetchPostsCount();
     }
   }
